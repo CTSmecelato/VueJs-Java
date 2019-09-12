@@ -13,13 +13,13 @@ O que você precisa para instalar o software e como instalá-lo.
 #### Java SE Development Kit 12 Downloads
 
 ```
-https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html
+(https://www.oracle.com/technetwork/java/javase/downloads/jdk12-downloads-5295953.html)
 ```
 
 #### Node.js e npm
 
 ```
-https://nodejs.org/en/download/
+(https://nodejs.org/en/download/)
 ```
 
 #### Vue.js
@@ -31,25 +31,25 @@ $ npm install vue
 #### Git
 
 ```
-https://git-scm.com/downloads
+(https://git-scm.com/downloads)
 ```
 
 #### PostgresSQL
 
 ```
-https://www.postgresql.org/download/
+(https://www.postgresql.org/download/)
 ```
 
 #### Apache Tomcat
 
 ```
-https://tomcat.apache.org/download-80.cgi
+(https://tomcat.apache.org/download-80.cgi)
 ```
 
 #### Intellij IDEA ou outra IDE
 
 ```
-https://www.jetbrains.com/idea/download/#section=windows
+(https://www.jetbrains.com/idea/download/#section=windows)
 ```
 
 ### Instalando
@@ -59,10 +59,6 @@ Clonando um Repositório Existente
 ```
 $ git clone https://github.com/CTSmecelato/VueJs-Java.git
 ```
-
-## Desenvolvimento
-
-Add additional notes about how to deploy this on a live system
 
 ## Construído com
 
