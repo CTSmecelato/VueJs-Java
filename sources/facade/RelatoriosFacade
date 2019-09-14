@@ -1,0 +1,36 @@
+package facade;
+
+import java.io.Serializable;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class RelatoriosFacade extends AbstractFacade<Relatorios> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public RelatoriosFacade() {
+    super(null);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public Connection getConnection() throws SQLException {
+    Session session = em.unwrap(Session.class);
+    SessionFactoryImplementor sfi = (SessionFactoryImplementor) session.getSessionFactory();
+    ConnectionProvider cp = sfi.getConnectionProvider();
+    Connection connection = cp.getConnection();
+    return connection;
+  }
+
+}

@@ -1,0 +1,55 @@
+package facade;
+
+import entity.Venda;
+import entity.VendaItem;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class VendaFacade extends AbstractFacade<Venda> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public VendaFacade() {
+    super(Venda.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public List<VendaItem> listaItens(Venda v) {
+    Query q = getEntityManager()
+      .createQuery("FROM VendaItem" + " AS i WHERE i.venda = " + v);
+    return q.getResultList();
+  }
+
+  public void carregaVenda(Venda v) {
+    List<VendaItem> itens = listaItens(v);
+    if (!itens.isEmpty()) {
+      v.getItens().clear();
+      v.getItens().addAll(itens);
+    }
+  }
+
+  @Override
+  public List<Venda> findAll() {
+    return new ArrayList<>();
+  }
+
+  public List<Venda> findVendas() {
+    return getEntityManager().createQuery("FROM Venda").getResultList();
+  }
+}

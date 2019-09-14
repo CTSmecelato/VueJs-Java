@@ -1,0 +1,42 @@
+package facade;
+
+import entity.Produto;
+import java.io.Serializable;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class ProdutoFacade extends AbstractFacade<Produto> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public ProdutoFacade() {
+    super(Produto.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  @Override
+  public List<Produto> autoComplete(String query, String field) {
+    Query q = null;
+    q = getEntityManager().createQuery("FROM Produto" + " AS i WHERE "
+      + "LOWER(i.nome) LIKE '%" + query.toLowerCase() + "%' OR "
+      + "LOWER(i.id) LIKE '%" + query.toLowerCase() + "%' OR "
+      + "LOWER(i.grupo.pai.id) LIKE '%" + query.toLowerCase() + "%' OR "
+      + "LOWER(i.grupo.id) LIKE '%" + query.toLowerCase() + "%'"
+      + "ORDER BY i.id");
+    return q.setMaxResults(20).getResultList();
+  }
+}

@@ -1,0 +1,29 @@
+package facade;
+
+import entity.ReceberPagar;
+import java.io.Serializable;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class ReceberPagarFacade extends AbstractFacade<ReceberPagar> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public ReceberPagarFacade() {
+    super(ReceberPagar.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+}
