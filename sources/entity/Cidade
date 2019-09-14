@@ -1,0 +1,91 @@
+package entity;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "cidade")
+public class Cidade implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "cid_id")
+  private Long id;
+
+  @Column(name = "cid_nome")
+  private String nome;
+
+  @JoinColumn(name = "est_id", referencedColumnName = "est_id")
+  @ManyToOne(optional = false)
+  private Estado estado;
+
+  public Cidade() {
+  }
+
+  public Cidade(Long id) {
+    this.id = id;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getNome() {
+    return nome;
+  }
+
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
+
+  public Estado getEstado() {
+    return estado;
+  }
+
+  public void setEstado(Estado estado) {
+    this.estado = estado;
+  }
+
+  public String getCidadeUf() {
+    return nome + "-" + estado.getSigla();
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Cidade cidade = (Cidade) object;
+    return java.util.Objects.equals(nome, cidade.nome) &&
+      java.util.Objects.equals(estado, cidade.estado);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), nome, estado);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

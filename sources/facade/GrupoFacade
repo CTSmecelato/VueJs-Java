@@ -1,0 +1,60 @@
+package facade;
+
+import entity.Grupo;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class GrupoFacade extends AbstractFacade<Grupo> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public GrupoFacade() {
+    super(Grupo.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public List<Grupo> listaPais() {
+    Query q = getEntityManager()
+      .createQuery("FROM Grupo" + " AS g WHERE g.pai = " + null);
+    return q.getResultList();
+  }
+
+  public List<Grupo> listaFilhos(Grupo g) {
+    if (g != null) {
+      Query q = getEntityManager()
+        .createQuery("FROM Grupo" + " AS g WHERE g.pai = " + g);
+      return q.getResultList();
+    }
+    return new ArrayList<>();
+  }
+
+  public void carregaGrupo(Grupo g) {
+    g.setFilhos(listaFilhos(g));
+  }
+
+  public List<Grupo> autoCompleteFilhos(String query) {
+    Query q = null;
+    q = getEntityManager().createQuery("FROM Grupo" + " AS i WHERE "
+      + "LOWER(i.nome) LIKE '%" + query.toLowerCase() + "%' OR "
+      + "LOWER(i.id) LIKE '%" + query.toLowerCase() + "%' OR "
+      + "LOWER(i.pai.id) LIKE '%" + query.toLowerCase() + "%'"
+      + "ORDER BY i.nome");
+    return q.setMaxResults(20).getResultList();
+  }
+}

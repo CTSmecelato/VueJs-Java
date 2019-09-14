@@ -1,0 +1,55 @@
+package facade;
+
+import entity.Compra;
+import entity.CompraItem;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class CompraFacade extends AbstractFacade<Compra> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public CompraFacade() {
+    super(Compra.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public List<CompraItem> listaItens(Compra v) {
+    Query q = getEntityManager()
+      .createQuery("FROM CompraItem" + " AS i WHERE i.compra = " + v);
+    return q.getResultList();
+  }
+
+  public void carregaCompra(Compra v) {
+    List<CompraItem> itens = listaItens(v);
+    if (!itens.isEmpty()) {
+      v.getItens().clear();
+      v.getItens().addAll(itens);
+    }
+  }
+
+  @Override
+  public List<Compra> findAll() {
+    return new ArrayList<>();
+  }
+
+  public List<Compra> findCompras() {
+    return getEntityManager().createQuery("FROM Compra").getResultList();
+  }
+}

@@ -1,0 +1,108 @@
+package entity;
+
+import enuns.NivelAcesso;
+import java.io.Serializable;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import utils.Criptografia;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "usuario")
+public class Usuario implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Basic(optional = false)
+  @Column(name = "usu_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "usu_login", unique = true)
+  private String login;
+
+  @Basic(optional = false)
+  @Column(name = "usu_senha")
+  private String senha;
+
+  @Basic(optional = false)
+  @Column(name = "usu_nivel")
+  @Enumerated(EnumType.STRING)
+  private NivelAcesso nivelAcesso;
+
+  @ManyToOne
+  @JoinColumn(name = "pes_id", referencedColumnName = "pes_id")
+  private Pessoa pessoa;
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getLogin() {
+    return login;
+  }
+
+  public void setLogin(String login) {
+    this.login = login.toLowerCase();
+  }
+
+  public String getSenha() {
+    return senha;
+  }
+
+  public void setSenha(String senha) {
+    this.senha = Criptografia.md5(senha);
+  }
+
+  public NivelAcesso getNivelAcesso() {
+    return nivelAcesso;
+  }
+
+  public void setNivelAcesso(NivelAcesso nivelAcesso) {
+    this.nivelAcesso = nivelAcesso;
+  }
+
+  public Pessoa getPessoa() {
+    return pessoa;
+  }
+
+  public void setPessoa(Pessoa pessoa) {
+    this.pessoa = pessoa;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Usuario usuario = (Usuario) object;
+    return java.util.Objects.equals(login, usuario.login) &&
+      java.util.Objects.equals(pessoa, usuario.pessoa);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), login, pessoa);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

@@ -1,0 +1,104 @@
+package facade;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import org.primefaces.model.SortOrder;
+
+/**
+ *
+ * @author caroline
+ */
+
+public abstract class AbstractFacade<T> implements Serializable {
+
+  private final Class<T> classe;
+
+  public AbstractFacade(Class<T> classe) {
+    this.classe = classe;
+  }
+
+  protected abstract EntityManager getEntityManager();
+
+  public void create(T entity) throws Exception {
+    try {
+      getEntityManager().persist(entity);
+      getEntityManager().flush();
+    } catch (Exception ex) {
+      throw ex;
+    }
+  }
+
+  public T edit(T entity) throws Exception {
+    try {
+      entity = getEntityManager().merge(entity);
+      getEntityManager().flush();
+      return entity;
+    } catch (Exception ex) {
+      throw ex;
+    }
+  }
+
+  public void remove(T entidade) {
+    getEntityManager().remove(getEntityManager().merge(entidade));
+  }
+
+  public T pesquisar(Object id) {
+    return getEntityManager().find(classe, id);
+  }
+
+  public T find(Object id) {
+    return getEntityManager().find(classe, id);
+  }
+
+  public List<T> findAll() {
+    return getEntityManager().createQuery("FROM " + classe.getSimpleName()).getResultList();
+  }
+
+  public List<T> autoComplete(String query, String field) {
+    Query q = null;
+    q = getEntityManager().createQuery("FROM " + classe.getSimpleName()
+      + " AS i WHERE LOWER(i." + field + ") LIKE '%"
+      + query.toLowerCase() + "%' ORDER BY i." + field);
+    return q.setMaxResults(20).getResultList();
+  }
+
+  public List<T> paginacaoSobDemanda(int first, int pageSize,
+                                     String sortField, SortOrder sortOrder,
+                                     Map<String, Object> filters, String condicaoExtra) {
+    if (sortField.length() > 0) {
+      if (sortOrder.equals(SortOrder.ASCENDING)) {
+        sortField = " ORDER BY i." + sortField + " ASC";
+      } else if (sortOrder.equals(SortOrder.DESCENDING)) {
+        sortField = " ORDER BY i." + sortField + " DESC";
+      } else {
+        sortField = " ORDER BY i." + sortField;
+      }
+    }
+    Query q = getEntityManager().createQuery("FROM "
+      + classe.getSimpleName() + " AS i " + sortField)
+      .setFirstResult(first).setMaxResults(pageSize);
+    return q.getResultList();
+  }
+
+  public int count(Map<String, Object> filters, String condicaoExtra) {
+
+    Query q = getEntityManager().createQuery("SELECT COUNT(*) FROM "
+      + classe.getSimpleName() + " AS i " + condicaoExtra);
+    long l = (Long) q.getSingleResult();
+    int qtd = (int) l;
+    return qtd;
+  }
+
+  public List getListaReceber() {
+    Query q = getEntityManager().createQuery("FROM ReceberPagar as r WHERE r.tipoReceberPagar = 'RECEBER' and r.statusConta = 'ATIVA' OR r.statusConta = 'BAIXADA'");
+    return q.getResultList();
+  }
+
+  public List getListaPagar() {
+    Query q = getEntityManager().createQuery("FROM ReceberPagar as r WHERE r.tipoReceberPagar = 'PAGAR' and r.statusConta = 'ATIVA' OR r.statusConta = 'BAIXADA'");
+    return q.getResultList();
+  }
+}

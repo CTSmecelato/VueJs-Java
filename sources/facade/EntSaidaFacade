@@ -1,0 +1,28 @@
+package facade;
+
+import entity.EntSaidaEstoque;
+import java.io.Serializable;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class EntSaidaEstoqueFacade extends AbstractFacade<EntSaidaEstoque> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public EntSaidaEstoqueFacade() {
+    super(EntSaidaEstoque.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+}

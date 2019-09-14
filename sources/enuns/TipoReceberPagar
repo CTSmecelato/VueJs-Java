@@ -1,0 +1,21 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum TipoReceberPagar {
+  RECEBER("Receber"),
+  PAGAR("Pagar");
+
+  private final String descricao;
+
+  private TipoReceberPagar (String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+}

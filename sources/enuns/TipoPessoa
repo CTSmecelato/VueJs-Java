@@ -1,0 +1,21 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum TipoPessoa {
+  PF("Pessoa física"),
+  PJ("Pessoa Juritica");
+
+  private final String descricao;
+
+  private TipoPessoa(String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+}

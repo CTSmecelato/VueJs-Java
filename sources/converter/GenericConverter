@@ -1,0 +1,40 @@
+package converter;
+
+import facade.AbstractFacade;
+import java.io.Serializable;
+import javax.faces.component.UIComponent;
+import javax.faces.context.FacesContext;
+import javax.faces.convert.Converter;
+
+/**
+ *
+ * @author caroline
+ */
+
+public class GenericConverter implements Converter, Serializable {
+
+  private final AbstractFacade ejb;
+
+  public GenericConverter(AbstractFacade ejb) {
+    this.ejb = ejb;
+  }
+
+  @Override
+  public Object getAsObject(FacesContext context, UIComponent component, String value) {
+    try {
+      if (!value.equals("null")) {
+        Long id = Long.valueOf(value);
+        return ejb.find(id);
+      } else {
+        return null;
+      }
+    } catch (Exception ex) {
+      return null;
+    }
+  }
+
+  @Override
+  public String getAsString(FacesContext context, UIComponent component, Object value) {
+    return value.toString();
+  }
+}

@@ -1,0 +1,170 @@
+package entity;
+
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Objects;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "produto")
+public class Produto implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "prod_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "prod_cod", unique = true)
+  private String codigo;
+
+  @Basic(optional = false)
+  @Column(name = "prod_nome")
+  private String nome;
+
+  @Column(name = "prod_ativo")
+  private Boolean ativo = true;
+
+  @ManyToOne
+  @JoinColumn(name = "prod_grupo", referencedColumnName = "grupo_id")
+  private Grupo grupo;
+
+  @Column(name = "prod_custo")
+  private BigDecimal custo = BigDecimal.ZERO;
+
+  @Column(name = "prod_valor")
+  private BigDecimal valor = BigDecimal.ZERO;
+
+  @Column(name = "prod_desconto")
+  private BigDecimal desconto = BigDecimal.ZERO;
+
+  @Column(name = "prod_estoque")
+  private BigDecimal estoque = BigDecimal.ZERO;
+
+  @ManyToOne
+  @JoinColumn(name = "prod_unidade", referencedColumnName = "uni_id")
+  private Unidade unidade;
+
+  public Produto() {
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getCodigo() {
+    return codigo;
+  }
+
+  public void setCodigo(String codigo) {
+    this.codigo = codigo;
+  }
+
+  public String getNome() {
+    return nome;
+  }
+
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
+
+  public Boolean getAtivo() {
+    return ativo;
+  }
+
+  public void setAtivo(Boolean ativo) {
+    this.ativo = ativo;
+  }
+
+  public Grupo getGrupo() {
+    return grupo;
+  }
+
+  public void setGrupo(Grupo grupo) {
+    this.grupo = grupo;
+  }
+
+  public BigDecimal getCusto() {
+    return custo;
+  }
+
+  public void setCusto(BigDecimal custo) {
+    this.custo = custo;
+  }
+
+  public BigDecimal getValor() {
+    return valor;
+  }
+
+  public void setValor(BigDecimal valor) {
+    this.valor = valor;
+  }
+
+  public BigDecimal getDesconto() {
+    return desconto;
+  }
+
+  public void setDesconto(BigDecimal desconto) {
+    this.desconto = desconto;
+  }
+
+  public BigDecimal getEstoque() {
+    return estoque;
+  }
+
+  public void setEstoque(BigDecimal estoque) {
+    this.estoque = estoque;
+  }
+
+  public Unidade getUnidade() {
+    return unidade;
+  }
+
+  public void setUnidade(Unidade unidade) {
+    this.unidade = unidade;
+  }
+
+  public String getLabel() {
+    return codigo + " - " + nome + "(" + estoque + " " + unidade + ")";
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Produto produto = (Produto) object;
+    return java.util.Objects.equals(codigo, produto.codigo) &&
+      java.util.Objects.equals(nome, produto.nome) &&
+      java.util.Objects.equals(grupo, produto.grupo);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), codigo, nome, grupo);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+
+}

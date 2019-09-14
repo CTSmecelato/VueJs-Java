@@ -1,0 +1,137 @@
+package entity;
+
+import enuns.TipoMov;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Date;
+import java.util.Objects;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "entSaidaEstoque")
+public class EntSaidaEstoque implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "ese_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "ese_motivo", columnDefinition = "TEXT")
+  private String motivo;
+
+  @Basic(optional = false)
+  @Column(name = "ese_qntd")
+  private BigDecimal quantidade = BigDecimal.ZERO;
+
+  @Basic(optional = false)
+  @Column(name = "ese_tipo")
+  private TipoMov tipo = TipoMov.ENTRADA;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  @JoinColumn(name = "prod_id", referencedColumnName = "prod_id")
+  private Produto produto;
+
+  @ManyToOne()
+  @JoinColumn(name = "usu_id", referencedColumnName = "usu_id")
+  private Usuario usuario;
+
+  @Column(name = "ese_data")
+  @Temporal(TemporalType.TIMESTAMP)
+  private Date data = new Date();
+
+  public EntSaidaEstoque() {
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getMotivo() {
+    return motivo;
+  }
+
+  public void setMotivo(String motivo) {
+    this.motivo = motivo;
+  }
+
+  public BigDecimal getQuantidade() {
+    return quantidade;
+  }
+
+  public void setQuantidade(BigDecimal quantidade) {
+    this.quantidade = quantidade;
+  }
+
+  public TipoMov getTipo() {
+    return tipo;
+  }
+
+  public void setTipo(TipoMov tipo) {
+    this.tipo = tipo;
+  }
+
+  public Produto getProduto() {
+    return produto;
+  }
+
+  public void setProduto(Produto produto) {
+    this.produto = produto;
+  }
+
+  public Usuario getUsuario() {
+    return usuario;
+  }
+
+  public void setUsuario(Usuario usuario) {
+    this.usuario = usuario;
+  }
+
+  public Date getData() {
+    return data;
+  }
+
+  public void setData(Date data) {
+    this.data = data;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    EntSaidaEstoque that = (EntSaidaEstoque) object;
+    return java.util.Objects.equals(id, that.id);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), id);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

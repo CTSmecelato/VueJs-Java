@@ -1,0 +1,221 @@
+package entity;
+
+import enuns.StatusConta;
+import enuns.TipoReceberPagar;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "receberpagar")
+public class ReceberPagar implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Basic(optional = false)
+  @Column(name = "rp_id")
+  private Long id;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "rp_tipo")
+  private TipoReceberPagar tipoReceberPagar;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "rp_status")
+  private StatusConta statusConta;
+
+  @Column(name = "rp_dataBaixa")
+  private Date dataBaixa;
+
+  @Column(name = "rp_dataVencimento")
+  private Date dataVencimento;
+
+  @Column(name = "rp_valor")
+  private BigDecimal valor;
+
+  @Column(name = "rp_numParcela")
+  private Integer numParcela;
+
+  @Column(name = "rp_qtdParcela")
+  private Integer qtdParcela;
+
+  @ManyToOne
+  private Pessoa pessoa;
+
+  @ManyToOne
+  private ReceberPagar origem;
+
+  @ManyToOne(cascade = CascadeType.MERGE)
+  private Conta conta;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "origem",
+    fetch = FetchType.LAZY)
+  private List<ReceberPagar> parcelas = new ArrayList<>();
+
+  public void gerarParcelas() throws Exception {
+    parcelas = new ArrayList<>();
+    if (qtdParcela < 1 || qtdParcela == null) {
+      throw new Exception("Número de parcelas deve ser maior que um");
+    }
+    for (int i = 0; qtdParcela > i; i++) {
+      ReceberPagar rp = new ReceberPagar();
+      rp.setValor(valor.divide(new BigDecimal(qtdParcela), 2, RoundingMode.DOWN));
+      rp.setNumParcela(i + 1);
+      rp.setQtdParcela(qtdParcela);
+      rp.setOrigem(this);
+      rp.setTipoReceberPagar(this.tipoReceberPagar);
+      rp.setPessoa(pessoa);
+      Calendar c = Calendar.getInstance();
+      c.setTime(dataVencimento);
+      c.set(Calendar.MONTH, c.get(Calendar.MONTH) + i);
+      rp.setDataVencimento(c.getTime());
+      parcelas.add(rp);
+    }
+  }
+
+  public void ativaParcelas() {
+    statusConta = StatusConta.ATIVA;
+    for (ReceberPagar rp : parcelas) {
+      rp.setStatusConta(StatusConta.ATIVA);
+    }
+  }
+
+  public Date getDataVencimento() {
+    return dataVencimento;
+  }
+
+  public void setDataVencimento(Date dataVencimento) {
+    this.dataVencimento = dataVencimento;
+  }
+
+  public Pessoa getPessoa() {
+    return pessoa;
+  }
+
+  public void setPessoa(Pessoa pessoa) {
+    this.pessoa = pessoa;
+  }
+
+  public Integer getQtdParcela() {
+    return qtdParcela;
+  }
+
+  public void setQtdParcela(Integer qtdParcela) {
+    this.qtdParcela = qtdParcela;
+  }
+
+  public Conta getConta() {
+    return conta;
+  }
+
+  public void setConta(Conta conta) {
+    this.conta = conta;
+  }
+
+  public ReceberPagar getOrigem() {
+    return origem;
+  }
+
+  public void setOrigem(ReceberPagar origem) {
+    this.origem = origem;
+  }
+
+  public TipoReceberPagar getTipoReceberPagar() {
+    return tipoReceberPagar;
+  }
+
+  public void setTipoReceberPagar(TipoReceberPagar tipoReceberPagar) {
+    this.tipoReceberPagar = tipoReceberPagar;
+  }
+
+  public StatusConta getStatusConta() {
+    return statusConta;
+  }
+
+  public void setStatusConta(StatusConta status) {
+    this.statusConta = status;
+  }
+
+  public Date getDataBaixa() {
+    return dataBaixa;
+  }
+
+  public void setDataBaixa(Date dataBaixa) {
+    this.dataBaixa = dataBaixa;
+  }
+
+  public BigDecimal getValor() {
+    return valor;
+  }
+
+  public void setValor(BigDecimal valor) {
+    this.valor = valor;
+  }
+
+  public Integer getNumParcela() {
+    return numParcela;
+  }
+
+  public void setNumParcela(Integer numParcela) {
+    this.numParcela = numParcela;
+  }
+
+  public List<ReceberPagar> getParcelas() {
+    return parcelas;
+  }
+
+  public void setParcelas(List<ReceberPagar> parcelas) {
+    this.parcelas = parcelas;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    ReceberPagar that = (ReceberPagar) object;
+    return java.util.Objects.equals(valor, that.valor) &&
+      java.util.Objects.equals(pessoa, that.pessoa) &&
+      java.util.Objects.equals(origem, that.origem);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), valor, pessoa, origem);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

@@ -1,0 +1,284 @@
+package entity;
+
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "pessoa")
+public class Pessoa implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  @Basic(optional = false)
+  @Column(name = "pes_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "pes_nome")
+  private String nome;
+
+  @Basic(optional = false)
+  @Column(name = "pes_razao")
+  private String razao;
+
+  @Basic(optional = false)
+  @Column(name = "pes_cfp_cnpj", unique = true)
+  private String cpfCnpj;
+
+  @Basic(optional = false)
+  @Column(name = "pes_rg_ie", unique = true)
+  private String rgIe;
+
+  @Basic(optional = false)
+  @Column(name = "pes_celular")
+  private String celular;
+
+  @Column(name = "pes_segcelular")
+  private String segcelular;
+
+  @Column(name = "pes_fixo")
+  private String fixo;
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "pes_tipo")
+  private TipoPessoa tipo = TipoPessoa.PF;
+
+  @Column(name = "pes_cliente")
+  private Boolean cliente = false;
+
+  @Column(name = "pes_fornecedor")
+  private Boolean fornecedor = false;
+
+  @Column(name = "pes_funcionario")
+  private Boolean funcionario = false;
+
+  @Column(name = "pes_ativo")
+  private Boolean ativo = true;
+
+  @Column(name="pes_data")
+  private Date data;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "pessoa",
+    fetch = FetchType.LAZY)
+  private List<Endereco> enderecos = new ArrayList<>();
+
+  @Transient
+  private Endereco endereco = new Endereco();
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getNome() {
+    return nome;
+  }
+
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
+
+  public String getRazao() {
+    return razao;
+  }
+
+  public void setRazao(String razao) {
+    this.razao = razao;
+  }
+
+  public String getCpfCnpj() {
+    return cpfCnpj;
+  }
+
+  public void setCpfCnpj(String cpfCnpj) {
+    this.cpfCnpj = cpfCnpj;
+  }
+
+  public String getRgIe() {
+    return rgIe;
+  }
+
+  public void setRgIe(String rgIe) {
+    this.rgIe = rgIe;
+  }
+
+  public String getCelular() {
+    return celular;
+  }
+
+  public void setCelular(String celular) {
+    this.celular = celular;
+  }
+
+  public String getSegcelular() {
+    return segcelular;
+  }
+
+  public void setSegcelular(String segcelular) {
+    this.segcelular = segcelular;
+  }
+
+  public String getFixo() {
+    return fixo;
+  }
+
+  public void setFixo(String fixo) {
+    this.fixo = fixo;
+  }
+
+  public TipoPessoa getTipo() {
+    return tipo;
+  }
+
+  public void setTipo(TipoPessoa tipo) {
+    this.tipo = tipo;
+  }
+
+  public Boolean getCliente() {
+    return cliente;
+  }
+
+  public void setCliente(Boolean cliente) {
+    this.cliente = cliente;
+  }
+
+  public Boolean getFornecedor() {
+    return fornecedor;
+  }
+
+  public void setFornecedor(Boolean fornecedor) {
+    this.fornecedor = fornecedor;
+  }
+
+  public Boolean getFuncionario() {
+    return funcionario;
+  }
+
+  public void setFuncionario(Boolean funcionario) {
+    this.funcionario = funcionario;
+  }
+
+  public Boolean getAtivo() {
+    return ativo;
+  }
+
+  public void setAtivo(Boolean ativo) {
+    this.ativo = ativo;
+  }
+
+  public Date getData() {
+    return data;
+  }
+
+  public void setData(Date data) {
+    this.data = data;
+  }
+
+  public List<Endereco> getEnderecos() {
+    return enderecos;
+  }
+
+  public void setEnderecos(List<Endereco> enderecos) {
+    this.enderecos = enderecos;
+  }
+
+  public Endereco getEndereco() {
+    return endereco;
+  }
+
+  public void setEndereco(Endereco endereco) {
+    this.endereco = endereco;
+  }
+
+  public void addEndereco() {
+    if (enderecos.isEmpty()) {
+      endereco.setPadrao(Boolean.TRUE);
+    }
+    endereco.setPessoa(this);
+    enderecos.add(endereco);
+    endereco = new Endereco();
+  }
+
+  public String getEndCompleto() {
+    if (this.getEndPadrao() != null) {
+      return this.getEndPadrao().getEndCompleto();
+    }
+    return "Não informado.";
+  }
+
+  public void setPadrao(Object linha) {
+    if (linha instanceof Endereco) {
+      for (Endereco end : enderecos) {
+        end.setPadrao(Boolean.FALSE);
+      }
+      ((Endereco) linha).setPadrao(Boolean.TRUE);
+    }
+  }
+
+  public List obtemLinhaList(Object linha) {
+    if (linha instanceof Endereco) {
+      return enderecos;
+    }
+    return null;
+  }
+
+  public void removeLinha(Object linha) {
+    obtemLinhaList(linha).remove(linha);
+  }
+
+  public Boolean linhaFinal(Object linha) {
+    return obtemLinhaList(linha).indexOf(linha) == obtemLinhaList(linha).size() - 1;
+  }
+
+  public Boolean linhaInicial(Object linha) {
+    return obtemLinhaList(linha).indexOf(linha) == 0;
+  }
+
+  public Boolean linhaAnteriorIgual(Object linha) throws Exception {
+    List list = obtemLinhaList(linha);
+    if (list.size() > 1) {
+      if (list.get(list.size() - 1).equals(list.get(list.size() - 2))) {
+        try {
+          list.set(list.size() - 1, linha.getClass().newInstance());
+        } catch (InstantiationException | IllegalAccessException ex) {
+          ex.printStackTrace();
+          throw new Exception("Não foi possivel reinstanciar a linha.");
+        }
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Pessoa pessoa = (Pessoa) object;
+    return java.util.Objects.equals(nome, pessoa.nome) &&
+      java.util.Objects.equals(razao, pessoa.razao) &&
+      java.util.Objects.equals(cpfCnpj, pessoa.cpfCnpj) &&
+      java.util.Objects.equals(rgIe, pessoa.rgIe);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), nome, razao, cpfCnpj, rgIe);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

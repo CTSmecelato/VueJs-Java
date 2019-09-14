@@ -1,0 +1,21 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum TipoMov {
+  ENTRADA("Entrada"),
+  SAIDA("Saída");
+
+  private final String descricao;
+
+  private TipoMov(String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+}

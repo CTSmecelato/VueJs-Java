@@ -1,0 +1,32 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package facade;
+
+import entity.Cidade;
+import java.io.Serializable;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+@Transacional
+public class CidadeFacade extends AbstractFacade<Cidade> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public CidadeFacade() {
+    super(Cidade.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+}

@@ -1,0 +1,245 @@
+package entity;
+
+import enuns.StatusCompra;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.Transient;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "compra")
+public class Compra implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "compra_id")
+  private Long id;
+
+  @Column(name = "compra_total")
+  private BigDecimal total = BigDecimal.ZERO;
+
+  @Column(name = "compra_desconto")
+  private BigDecimal desconto = BigDecimal.ZERO;
+
+  @Column(name = "compra_data")
+  @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+  private Date data = new Date();
+
+  @JoinColumn(name = "fornecedor_id", referencedColumnName = "pes_id")
+  @ManyToOne
+  private Pessoa fornecedor;
+
+  @ManyToOne()
+  @JoinColumn(name = "usu_id", referencedColumnName = "usu_id")
+  private Usuario usuario;
+
+  @Column(name = "compra_status")
+  @Enumerated(EnumType.STRING)
+  private StatusCompra status = StatusCompra.ORCAMENTO;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "compra",
+    fetch = FetchType.LAZY, orphanRemoval = true)
+  private List<CompraItem> itens = new ArrayList<>();
+
+  @Transient
+  private CompraItem item = new CompraItem();
+
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name="receberPagar")
+  private ReceberPagar receberPagar = new ReceberPagar();
+
+  public Compra() {
+  }
+
+  public void addItem() {
+    item.setCompra(this);
+    if (itens.contains(item)) {
+      CompraItem vi = itens.get(itens.indexOf(item));
+      vi.setQuantidade(vi.getQuantidade().add(item.getQuantidade()));
+      vi.setPreco(item.getPreco());
+    } else {
+      itens.add(item);
+    }
+    item = new CompraItem();
+    calculaTotal();
+  }
+
+  public void removeItem(CompraItem item) {
+    itens.remove(item);
+    calculaTotal();
+  }
+
+  public void faturar() throws Exception {
+
+    for(CompraItem ci : this.itens) {
+      ci.getProduto().setEstoque(ci.getQuantidade());
+      ci.getProduto().setCusto(ci.getPreco());
+    }
+    receberPagar.ativaParcelas();
+    status = StatusCompra.FATURADA;
+  }
+
+  public void receberEncomenda() throws Exception {
+    for (CompraItem vi : itens) {
+      vi.getProduto().setEstoque(vi.getProduto()
+        .getEstoque().add(vi.getQuantidade()));
+    }
+    status = StatusCompra.RECEBIDA;
+  }
+
+  public void cancelar() {
+    if (status.equals(StatusCompra.FATURADA)) {
+      for (CompraItem vi : itens) {
+        vi.getProduto().setEstoque(vi.getProduto()
+          .getEstoque().add(vi.getQuantidade()));
+      }
+    }
+    status = StatusCompra.CANCELADA;
+  }
+
+  public void estornar() {
+    if (status.equals(StatusCompra.FATURADA)) {
+      for (CompraItem vi : itens) {
+        vi.getProduto().setEstoque(vi.getProduto()
+          .getEstoque().add(vi.getQuantidade()));
+      }
+    }
+    status = StatusCompra.ORCAMENTO;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void calculaTotal() {
+    BigDecimal total = BigDecimal.ZERO;
+    for (CompraItem vi : itens) {
+      total = total.add(vi.getSubtotal());
+    }
+    total = total.subtract(desconto);
+    this.total = total;
+  }
+
+  public ReceberPagar getReceberPagar() {
+    return receberPagar;
+  }
+
+  public void setReceberPagar(ReceberPagar receberPagar) {
+    this.receberPagar = receberPagar;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public BigDecimal getTotal() {
+    calculaTotal();
+    return total;
+  }
+
+  public void setTotal(BigDecimal total) {
+    this.total = total;
+  }
+
+  public BigDecimal getDesconto() {
+    return desconto;
+  }
+
+  public void setDesconto(BigDecimal desconto) {
+    this.desconto = desconto;
+  }
+
+  public Pessoa getFornecedor() {
+    return fornecedor;
+  }
+
+  public void setFornecedor(Pessoa fornecedor) {
+    this.fornecedor = fornecedor;
+  }
+
+  public Date getData() {
+    return data;
+  }
+
+  public void setData(Date data) {
+    this.data = data;
+  }
+
+  public Usuario getUsuario() {
+    return usuario;
+  }
+
+  public void setUsuario(Usuario usuario) {
+    this.usuario = usuario;
+  }
+
+  public StatusCompra getStatus() {
+    return status;
+  }
+
+  public void setStatus(StatusCompra status) {
+    this.status = status;
+  }
+
+  public List<CompraItem> getItens() {
+    return itens;
+  }
+
+  public void setItens(List<CompraItem> itens) {
+    this.itens = itens;
+  }
+
+  public CompraItem getItem() {
+    return item;
+  }
+
+  public void setItem(CompraItem item) {
+    this.item = item;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Compra compra = (Compra) object;
+    return java.util.Objects.equals(total, compra.total) &&
+      java.util.Objects.equals(data, compra.data) &&
+      java.util.Objects.equals(fornecedor, compra.fornecedor) &&
+      java.util.Objects.equals(usuario, compra.usuario);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), total, data, fornecedor, usuario);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

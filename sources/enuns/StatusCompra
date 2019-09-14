@@ -1,0 +1,23 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum StatusCompra {
+  ORCAMENTO("Orcamento"),
+  FATURADA("Faturada"),
+  RECEBIDA("Recebida"),
+  CANCELADA("Cancelada");
+
+  private final String descricao;
+
+  private StatusCompra(String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+}

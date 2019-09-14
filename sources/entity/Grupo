@@ -1,0 +1,119 @@
+package entity;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "grupo")
+public class Grupo implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "grupo_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "grupo_nome", unique = true)
+  private String nome;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "pai",
+    fetch = FetchType.LAZY)
+  private List<Grupo> filhos = new ArrayList<>();
+
+  @ManyToOne (optional = true)
+  @JoinColumn(name = "grupo_pai", referencedColumnName = "grupo_id")
+  private Grupo pai;
+
+  @Column(name = "grupo_ativo")
+  private Boolean ativo = true;
+
+  public Grupo() {
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getNome() {
+    return nome;
+  }
+
+  public void setNome(String nome) {
+    this.nome = nome;
+  }
+
+  public List<Grupo> getFilhos() {
+    return filhos;
+  }
+
+  public void setFilhos(List<Grupo> filhos) {
+    this.filhos = filhos;
+  }
+
+  public entity.Grupo getPai() {
+    return pai;
+  }
+
+  public void setPai(entity.Grupo pai) {
+    this.pai = pai;
+  }
+
+  public Boolean getAtivo() {
+    return ativo;
+  }
+
+  public void setAtivo(Boolean ativo) {
+    this.ativo = ativo;
+  }
+
+  public String getLabel() {
+    if (getSubgrupo()) {
+      return "(" + pai.nome + ")" + id + "-" + nome;
+    }
+    return "(" + id + ")" + nome;
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Grupo grupo = (Grupo) object;
+    return java.util.Objects.equals(nome, grupo.nome) &&
+      java.util.Objects.equals(pai, grupo.pai);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), nome, pai);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

@@ -1,0 +1,53 @@
+package util;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
+import org.primefaces.context.RequestContext;
+
+
+public class ControllerUtil {
+
+  public static void systemMessage(FacesMessage.Severity tipo, String msg, String detalhe) {
+    FacesMessage message = new FacesMessage(tipo, msg, detalhe);
+    FacesContext.getCurrentInstance().addMessage(null, message);
+  }
+
+  public static void addError(Exception e) {
+    addErrorMessage(e.getMessage());
+    e.printStackTrace();
+  }
+
+  public static void addError(String msg, Exception e) {
+    addErrorMessage(msg + " - " + e.getMessage());
+    e.printStackTrace();
+  }
+
+  public static void addFatalMessage(String msg) {
+    FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_FATAL, msg, msg);
+    FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+  }
+
+  public static void addErrorMessage(String msg) {
+    FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_ERROR, msg, msg);
+    FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+  }
+
+  public static void addWarningMessage(String msg) {
+    FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_WARN, msg, msg);
+    FacesContext.getCurrentInstance().addMessage(null, facesMsg);
+  }
+
+  public static void addSuccessMessage(String msg) {
+    FacesMessage facesMsg = new FacesMessage(FacesMessage.SEVERITY_INFO, msg, msg);
+    FacesContext.getCurrentInstance().addMessage("successInfo", facesMsg);
+  }
+
+  public static void atualizaCampo(String cmp) {
+    RequestContext.getCurrentInstance().update(cmp);
+  }
+
+  public static void runJavaScript(String function) {
+    RequestContext contexto = RequestContext.getCurrentInstance();
+    contexto.execute(function);
+  }
+}

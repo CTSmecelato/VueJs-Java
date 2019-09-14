@@ -1,0 +1,23 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum NivelAcesso {
+  ADMIN("Administrador"),
+  GERENTE("Gerente"),
+  BALCONISTA("Balconista");
+
+  private final String descricao;
+
+  private NivelAcesso(String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+
+}

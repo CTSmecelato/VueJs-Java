@@ -1,0 +1,67 @@
+package facade;
+
+import entity.Endereco;
+import java.io.Serializable;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class PessoaFacade extends AbstractFacade<Pessoa> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public PessoaFacade() {
+    super(Pessoa.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public void carregaPessoa(Pessoa p) {
+    p.setEndereco(listaEndereco(p));
+  }
+
+  public List<Pessoa> clienteAutoComplete(String query) {
+    Query q = null;
+    q = getEntityManager().createQuery(
+      "FROM Pessoa AS i"
+        + " WHERE LOWER(i.nome)"
+        + " LIKE '%" + query.toLowerCase() + "%'"
+        + " AND i.cliente = " + true
+        + " ORDER BY i.nome");
+    return q.setMaxResults(20).getResultList();
+  }
+
+  public List<Pessoa> funcionarioAutoComplete(String query) {
+    Query q = null;
+    q = getEntityManager().createQuery(
+      "FROM Pessoa AS i"
+        + " WHERE LOWER(i.nome)"
+        + " LIKE '%" + query.toLowerCase() + "%'"
+        + " AND i.funcionario = " + true
+        + " ORDER BY i.nome");
+    return q.setMaxResults(20).getResultList();
+  }
+
+  public List<Pessoa> fornecedorAutoComplete(String query) {
+    Query q = null;
+    q = getEntityManager().createQuery(
+      "FROM Pessoa AS i"
+        + " WHERE LOWER(i.nome)"
+        + " LIKE '%" + query.toLowerCase() + "%'"
+        + " AND i.fornecedor = " + true
+        + " ORDER BY i.nome");
+    return q.setMaxResults(20).getResultList();
+  }
+}

@@ -1,0 +1,249 @@
+package entity;
+
+import enuns.StatusConta;
+import enuns.StatusVenda;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name = "venda")
+public class Venda implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "venda_id", nullable = false)
+  private Long id;
+
+  @Column(name = "venda_total")
+  private BigDecimal total = BigDecimal.ZERO;
+
+  @Column(name = "venda_desconto")
+  private BigDecimal desconto = BigDecimal.ZERO;
+
+  @Column(name = "venda_data")
+  @Temporal(javax.persistence.TemporalType.TIMESTAMP)
+  private Date data = new Date();
+
+  @JoinColumn(name = "funcionario_id", referencedColumnName = "pes_id")
+  @ManyToOne
+  private Pessoa funcionario;
+
+  @JoinColumn(name = "cliente_id", referencedColumnName = "pes_id")
+  @ManyToOne
+  private Pessoa cliente;
+
+  @ManyToOne()
+  @JoinColumn(name = "usu_id", referencedColumnName = "usu_id")
+  private Usuario usuario;
+
+  @Column(name = "venda_status")
+  @Enumerated(EnumType.STRING)
+  private StatusVenda status = StatusVenda.ORCAMENTO;
+
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "venda",
+    fetch = FetchType.LAZY, orphanRemoval = true)
+  private List<VendaItem> itens = new ArrayList<>();
+
+  @Transient
+  private VendaItem item = new VendaItem();
+
+  @ManyToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name="receberpagar")
+  private ReceberPagar ReceberPagar = new ReceberPagar();
+
+  public ReceberPagar getReceberPagar() {
+    return ReceberPagar;
+  }
+
+  public void setReceberPagar(ReceberPagar ReceberPagar) {
+    this.ReceberPagar = ReceberPagar;
+  }
+
+  public Venda() {
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public BigDecimal getTotal() {
+    return total;
+  }
+
+  public void setTotal(BigDecimal total) {
+    this.total = total;
+  }
+
+  public BigDecimal getDesconto() {
+    return desconto;
+  }
+
+  public void setDesconto(BigDecimal desconto) {
+    this.desconto = desconto;
+  }
+
+  public Date getData() {
+    return data;
+  }
+
+  public void setData(Date data) {
+    this.data = data;
+  }
+
+  public Pessoa getFuncionario() {
+    return funcionario;
+  }
+
+  public void setFuncionario(Pessoa funcionario) {
+    this.funcionario = funcionario;
+  }
+
+  public Pessoa getCliente() {
+    return cliente;
+  }
+
+  public void setCliente(Pessoa cliente) {
+    this.cliente = cliente;
+  }
+
+  public Usuario getUsuario() {
+    return usuario;
+  }
+
+  public void setUsuario(Usuario usuario) {
+    this.usuario = usuario;
+  }
+
+  public StatusVenda getStatus() {
+    return status;
+  }
+
+  public void setStatus(StatusVenda status) {
+    this.status = status;
+  }
+
+  public List<VendaItem> getItens() {
+    return itens;
+  }
+
+  public void setItens(List<VendaItem> itens) {
+    this.itens = itens;
+  }
+
+  public VendaItem getItem() {
+    return item;
+  }
+
+  public void setItem(VendaItem item) {
+    this.item = item;
+  }
+
+  public void addItem() {
+    item.setVenda(this);
+    item.setPreco(item.getProduto().getValor());
+    if (itens.contains(item)) {
+      VendaItem vi = itens.get(itens.indexOf(item));
+      vi.setQuantidade(vi.getQuantidade().add(item.getQuantidade()));
+    } else {
+      itens.add(item);
+    }
+    item = new VendaItem();
+    calculaTotal();
+  }
+
+  public void removeItem(VendaItem item) {
+    itens.remove(item);
+    calculaTotal();
+  }
+
+  public void baixaEstoque() throws Exception {
+    for (VendaItem vi : itens) {
+      if (vi.getProduto().getEstoque().compareTo(vi.getQuantidade()) < 0) {
+        throw new Exception("Oops! Tem algum produto indisponiveis em estoque, impossivel faturar.");
+      } else {
+        vi.getProduto().setEstoque(vi.getProduto()
+          .getEstoque().subtract(vi.getQuantidade()));
+      }
+    }
+  }
+
+  public void faturar() throws Exception {
+    baixaEstoque();
+    ReceberPagar.ativaParcelas();
+    status = StatusVenda.FATURADA;
+  }
+
+  public void estornaEstoque() {
+    for (VendaItem vi : itens) {
+      vi.getProduto().setEstoque(vi.getProduto()
+        .getEstoque().add(vi.getQuantidade()));
+    }
+  }
+
+  public void cancelar() {
+    if (status.equals(StatusVenda.FATURADA)) {
+      estornaEstoque();
+    }
+    status = StatusVenda.CANCELADA;
+  }
+
+  public void estornar() {
+    estornaEstoque();
+    status = StatusVenda.ORCAMENTO;
+  }
+
+  public void calculaTotal() {
+    BigDecimal total = BigDecimal.ZERO;
+    for (VendaItem vi : itens) {
+      total = total.add(vi.getSubtotal());
+    }
+    total = total.subtract(desconto);
+    this.total = total;
+    this.ReceberPagar.setValor(total);
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Venda venda = (Venda) object;
+    return java.util.Objects.equals(total, venda.total) &&
+      java.util.Objects.equals(data, venda.data) &&
+      java.util.Objects.equals(cliente, venda.cliente);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), total, data, cliente);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

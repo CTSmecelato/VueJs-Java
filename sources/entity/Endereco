@@ -1,0 +1,161 @@
+package entity;
+
+import java.io.Serializable;
+import java.util.Objects;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Entity
+@Table(name = "endereco")
+public class Endereco implements Serializable {
+
+  private static final long serialVersionUID = 1L;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Basic(optional = false)
+  @Column(name = "end_id")
+  private Long id;
+
+  @Basic(optional = false)
+  @Column(name = "end_cep")
+  private String cep;
+
+  @Basic(optional = false)
+  @Column(name = "end_rua")
+  private String rua;
+
+  @Basic(optional = false)
+  @Column(name = "end_numero")
+  private String numero;
+
+  @Basic(optional = false)
+  @Column(name = "end_bairro")
+  private String bairro;
+
+  @Column(name = "end_comp")
+  private String comp;
+
+  @JoinColumn(name = "cid_id", referencedColumnName = "cid_id")
+  @ManyToOne(optional = false)
+  private Cidade cidade;
+
+  @Column(name = "end_padrao")
+  private Boolean padrao = false;
+
+  @ManyToOne
+  @JoinColumn(name = "pes_id", referencedColumnName = "pes_id")
+  private Pessoa pessoa;
+
+  public Endereco(Long id) {
+    this.id = id;
+  }
+
+  public Long getId() {
+    return id;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public String getCep() {
+    return cep;
+  }
+
+  public void setCep(String cep) {
+    this.cep = cep;
+  }
+
+  public String getRua() {
+    return rua;
+  }
+
+  public void setRua(String rua) {
+    this.rua = rua;
+  }
+
+  public String getNumero() {
+    return numero;
+  }
+
+  public void setNumero(String numero) {
+    this.numero = numero;
+  }
+
+  public String getBairro() {
+    return bairro;
+  }
+
+  public void setBairro(String bairro) {
+    this.bairro = bairro;
+  }
+
+  public String getComp() {
+    return comp;
+  }
+
+  public void setComp(String comp) {
+    this.comp = comp;
+  }
+
+  public Cidade getCidade() {
+    return cidade;
+  }
+
+  public void setCidade(Cidade cidade) {
+    this.cidade = cidade;
+  }
+
+  public Boolean getPadrao() {
+    return padrao;
+  }
+
+  public void setPadrao(Boolean padrao) {
+    this.padrao = padrao;
+  }
+
+  public Pessoa getPessoa() {
+    return pessoa;
+  }
+
+  public void setPessoa(Pessoa pessoa) {
+    this.pessoa = pessoa;
+  }
+
+  public String getEndCompleto() {
+    if (cidade != null) {
+      cid = cidade.getCidadeUf();
+    }
+    if (comp != null && comp.isEmpty()) {
+      return rua + ", " + numero + ", " + comp + "; "
+        + cep + ", " + cid + ".";
+    } else {
+      return rua + ", " + numero + "; "
+        + cep + ", " + cid + ".";
+    }
+  }
+
+  public boolean equals(Object object) {
+    if (this == object) return true;
+    if (object == null || getClass() != object.getClass()) return false;
+    if (!super.equals(object)) return false;
+    Endereco endereco = (Endereco) object;
+    return java.util.Objects.equals(cep, endereco.cep) &&
+      java.util.Objects.equals(rua, endereco.rua) &&
+      java.util.Objects.equals(numero, endereco.numero) &&
+      java.util.Objects.equals(bairro, endereco.bairro) &&
+      java.util.Objects.equals(cidade, endereco.cidade);
+  }
+
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), cep, rua, numero, bairro, cidade);
+  }
+
+  @Override
+  public String toString() {
+    return id.toString();
+  }
+}

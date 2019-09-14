@@ -1,0 +1,21 @@
+package enuns;
+
+/**
+ *
+ * @author caroline
+ */
+
+public enum StatusConta {
+  ATIVA("Ativa"),
+  BAIXADA("Baixada");
+
+  private final String descricao;
+
+  private StatusConta (String descricao) {
+    this.descricao = descricao;
+  }
+
+  public String getDescricao() {
+    return descricao;
+  }
+}

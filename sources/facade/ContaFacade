@@ -1,0 +1,45 @@
+package facade;
+
+import entity.Conta;
+import entity.Pessoa;
+import entity.ReceberPagar;
+import enuns.TipoReceberPagar;
+import java.io.Serializable;
+import java.util.List;
+import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import persistencia.Transacional;
+
+/**
+ *
+ * @author caroline
+ */
+
+@Transacional
+public class ContaFacade extends AbstractFacade<Conta> implements Serializable {
+
+  @Inject
+  private EntityManager entityManager;
+
+  public ContaFacade() {
+    super(Conta.class);
+  }
+
+  @Override
+  protected EntityManager getEntityManager() {
+    return entityManager;
+  }
+
+  public List<ReceberPagar> listaContasReceber(Conta c) {
+    Query q = getEntityManager()
+      .createQuery("FROM ReceberPagar AS rp WHERE rp.conta =" + c + " AND rp.tipo = " + TipoReceberPagar.RECEBER);
+    return q.getResultList();
+  }
+
+  public List<ReceberPagar> listaContasPagar(Conta c) {
+    Query q = getEntityManager()
+      .createQuery("FROM ReceberPagar AS rp WHERE rp.conta =" + c + " AND rp.tipo = " + TipoReceberPagar.PAGAR);
+    return q.getResultList();
+  }
+}
